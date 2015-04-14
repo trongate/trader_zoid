@@ -9,13 +9,14 @@ Congratulations Mad Skull.  You've just downloaded Trader Zoid :
 
  STEP 2:  run the following SQL code:
 
- CREATE TABLE IF NOT EXISTS `stocks_feed` (
-`id` int(11) NOT NULL,
-  `stock_symbol` varchar(4) NOT NULL,
+CREATE TABLE IF NOT EXISTS `stocks_feed` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `stock_symbol` varchar(12) NOT NULL,
   `price` decimal(8,2) NOT NULL,
   `last_trade` varchar(75) NOT NULL,
-  `date_added` int(11) NOT NULL
-)
+  `date_added` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+);
 
 STEP 3:  (assuming you're running XAMPP, WAMP or some similar thing)
 Go to http://localhost/trader_zoid/stock_reader/get_data

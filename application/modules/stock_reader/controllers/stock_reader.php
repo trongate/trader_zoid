@@ -50,7 +50,7 @@ foreach ($nasdaq_stocks as $key => $value) {
 	}
 }
 
-echo $url; //die();
+//echo $url; die();
 
 $info= file_get_contents($url);
 $info = str_replace('// ', '', $info);
@@ -74,8 +74,14 @@ foreach ($stock_data as $key => $value) {
 	$data['price'] = $value['l'];
 	$data['last_trade'] = $value['lt'];
 	$data['date_added'] = time();
-	$this->stocks_feed->_insert($data);
-	echo "<br>INSERTED<hr>";
+
+	$got_new_data = $this->stocks_feed->_has_new_trade_taken_place($data);
+	if ($got_new_data==TRUE) {
+		$this->stocks_feed->_insert($data);
+		echo "<br>INSERTED<hr>";
+	} else {
+		echo "<br>NO NEW DATA<hr>";
+	}
 }
 
 }

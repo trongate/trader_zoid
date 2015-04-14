@@ -2,14 +2,24 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 class Stocks_feed extends MX_Controller { 
 
-function test() {
-	echo "here we go";
-	$data['stock_symbol'] = "zzz";
-	$data['price'] = 88.88;
-	$data['last_trade'] = "bla";
-	$data['date_added'] = 123456789;
-	$this->_insert($data);
-	echo "done";
+function _has_new_trade_taken_placeCOOL($data) {
+	//has a new trade been executed for this stock?
+	//accepts $data['stock_symbol'] and $data['last_trade']
+	$stock_symbol = $data['stock_symbol'];
+	$last_trade = $data['last_trade'];
+
+	$mysql_query = "select * from stocks_feed where stock_symbol='$stock_symbol' and last_trade='$last_trade'";
+	$query = $this->_custom_query($mysql_query);
+	$num_rows = $query->num_rows();
+	if ($num_rows>0) {
+		return FALSE; //no new trades, therefore do NOT update database
+	} else {
+		return TRUE;
+	}
+}
+
+function _has_new_trade_taken_place($data) {
+return TRUE;
 }
 
 function get($order_by) {
