@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 class Stocks_feed extends MX_Controller { 
 
-function _has_new_trade_taken_placeCOOL($data) {
+function _has_new_trade_taken_place($data) {
 	//has a new trade been executed for this stock?
 	//accepts $data['stock_symbol'] and $data['last_trade']
 	$stock_symbol = $data['stock_symbol'];
@@ -16,10 +16,6 @@ function _has_new_trade_taken_placeCOOL($data) {
 	} else {
 		return TRUE;
 	}
-}
-
-function _has_new_trade_taken_place($data) {
-return TRUE;
 }
 
 function get($order_by) {
@@ -77,6 +73,11 @@ function _custom_query($mysql_query) {
 $this->load->model('mdl_stocks_feed');
 $query = $this->mdl_stocks_feed->_custom_query($mysql_query);
 return $query;
+}
+
+
+function run() {
+	$this->load->view('run');
 }
 
 

@@ -21,20 +21,12 @@ connection.connect(function(err) {
   }
 });
 
-// creating the server ( localhost:3306 )
-app.listen(3306);
+// creating the server ( localhost:8000 )
+app.listen(8000);
 
 // on server started we can load our client.html page
 function handler(req, res) {
-  fs.readFile(__dirname + '/client.html', function(err, data) {
-    if (err) {
-      console.log(err);
-      res.writeHead(500);
-      return res.end('Error loading client.html');
-    }
-    res.writeHead(200);
-    res.end(data);
-  });
+//
 }
 
 /*
@@ -131,4 +123,4 @@ var updateSockets = function(data) {
   });
 };
 
-console.log('Please use your browser to navigate to http://localhost:3306');
+console.log('Please use your browser to navigate to http://localhost:8000');
