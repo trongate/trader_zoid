@@ -3,45 +3,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Stock_reader extends MX_Controller {
 
 function get_data() {
-$url="http://finance.google.com/finance/info?client=ig&q=NYSE:";
+$url="http://finance.google.com/finance/info?client=ig&q=";
 
-$nasdaq_stocks[] = "AAPL";
-$nasdaq_stocks[] = "ADBE";
-$nasdaq_stocks[] = "AIG";
-$nasdaq_stocks[] = "AMZN";
-$nasdaq_stocks[] = "NYSE:BA";
-$nasdaq_stocks[] = "BAC";
-$nasdaq_stocks[] = "NYSE:CAT";
-$nasdaq_stocks[] = "CVX";
-$nasdaq_stocks[] = "NYSE:DIS";
-$nasdaq_stocks[] = "F";
-$nasdaq_stocks[] = "FB";
-$nasdaq_stocks[] = "GE";
-$nasdaq_stocks[] = "GOOG";
-$nasdaq_stocks[] = "HD";
-$nasdaq_stocks[] = "IBM";
-$nasdaq_stocks[] = "JPM";
-$nasdaq_stocks[] = "KO";
-$nasdaq_stocks[] = "LMT";
-$nasdaq_stocks[] = "LNKD";
-$nasdaq_stocks[] = "MRK";
-$nasdaq_stocks[] = "MCD";
-$nasdaq_stocks[] = "MSFT";
-$nasdaq_stocks[] = "NFLX";
-$nasdaq_stocks[] = "NKE";
-$nasdaq_stocks[] = "PFE";
-$nasdaq_stocks[] = "PG";
-$nasdaq_stocks[] = "SBUX";
-$nasdaq_stocks[] = "SPLS";
-$nasdaq_stocks[] = "TWTR";
-$nasdaq_stocks[] = "V";
-$nasdaq_stocks[] = "VIA";
-$nasdaq_stocks[] = "WMT";
-$nasdaq_stocks[] = "YHOO";
-$nasdaq_stocks[] = "XOM";
+$stocks = $this->get_stocks();
 
 $count = 0;
-foreach ($nasdaq_stocks as $key => $value) {
+foreach ($stocks as $key => $value) {
 	$count++;
 	if ($count>1) {
 		$url.=",".$value;
@@ -85,5 +52,46 @@ foreach ($stock_data as $key => $value) {
 }
 
 }
+
+function get_stocks() {
+	//return an array of the stocks that we are watching
+	$stocks[] = "NYSE:AAPL";
+	$stocks[] = "ADBE";
+	$stocks[] = "AIG";
+	$stocks[] = "AMZN";
+	$stocks[] = "NYSE:BA";
+	$stocks[] = "BAC";
+	$stocks[] = "NYSE:CAT";
+	$stocks[] = "CVX";
+	$stocks[] = "NYSE:DIS";
+	$stocks[] = "F";
+	$stocks[] = "FB";
+	$stocks[] = "GE";
+	$stocks[] = "GOOG";
+	$stocks[] = "HD";
+	$stocks[] = "IBM";
+	$stocks[] = "JPM";
+	$stocks[] = "KO";
+	$stocks[] = "LMT";
+	$stocks[] = "LNKD";
+	$stocks[] = "MRK";
+	$stocks[] = "MCD";
+	$stocks[] = "MSFT";
+	$stocks[] = "NFLX";
+	$stocks[] = "NKE";
+	$stocks[] = "PFE";
+	$stocks[] = "PG";
+	$stocks[] = "SBUX";
+	$stocks[] = "SPLS";
+	$stocks[] = "TWTR";
+	$stocks[] = "V";
+	$stocks[] = "VIA";
+	$stocks[] = "WMT";
+	$stocks[] = "YHOO";
+	$stocks[] = "XOM";
+	return $stocks;
+}
+
+
 
 }

@@ -10,6 +10,44 @@ $table = "stocks_feed";
 return $table;
 }
 
+function get_prev_price_id($stock_symbol, $date_added) {
+$table = $this->get_table();
+$this->db->select_max('id');
+$this->db->where('stock_symbol', $stock_symbol);
+$this->db->where('date_added <', $date_added);
+$query=$this->db->get($table);
+$row=$query->row();
+$id=$row->id;
+return $id; 
+}
+
+function get_lowest_price_between_two_times($stock_symbol, $start_time, $end_time) {
+$table = $this->get_table();
+$this->db->select_min('price');
+$this->db->where('stock_symbol', $stock_symbol);
+$this->db->where('date_added >=', $start_time);
+$this->db->where('date_added <=', $end_time);
+$query=$this->db->get($table);
+$row=$query->row();
+$price=$row->price;
+return $price; 
+}
+
+function get_highest_price_between_two_times($stock_symbol, $start_time, $end_time) {
+$table = $this->get_table();
+$this->db->select_max('price');
+$this->db->where('stock_symbol', $stock_symbol);
+$this->db->where('date_added >=', $start_time);
+$this->db->where('date_added <=', $end_time);
+$query=$this->db->get($table);
+$row=$query->row();
+$price=$row->price;
+return $price; 
+}
+
+
+
+
 function get($order_by) {
 $table = $this->get_table();
 $this->db->order_by($order_by);

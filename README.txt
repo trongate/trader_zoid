@@ -18,12 +18,21 @@ CREATE TABLE IF NOT EXISTS `stocks_feed` (
   PRIMARY KEY (`id`)
 );
 
+(sample data for this table can be found in the _junk folder)
+
+
 STEP 3:  (assuming you're running XAMPP, WAMP or some similar thing)
 Go to http://localhost/trader_zoid/stock_reader/get_data
 
 STEP 4:  Swoon with delight over how the thing has just read from the
 thing and chucked it into the database.  Yeeeehaaa!
 
+NOTE #1:  You can view a rubbish candlestick daily chart of the stock at 
+http://localhost/trader_zoid/stocks_feed/view_chart/MCD (where the 4th 
+segment is a stock symbol).   THIS TOTALLY NEEDS WORK!!!
 
-Okay, I agree it's pretty rubbish - but wait until you see it in a few 
-weeks time!
+NOTE #2:  You can get a list of all the stocks we're checking in stock_reader.php
+
+NOTE #3:  There's a YouTube video showing where we are here: https://www.youtube.com/watch?v=spxOoerPqA4
+
+
