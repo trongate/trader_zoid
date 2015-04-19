@@ -2,68 +2,146 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 class Stocks_feed extends MX_Controller {
 
-function get_start_of_day_prices($stock_symbol) {
-	//get the IDs records which represent the start of a new trading day
-	$current_day = "";
-	$query = $this->get('date_added');
-	foreach($query->result() as $row) {
-		$last_trade = $row->last_trade;
-		$this_day = substr($last_trade, 0, 6);
 
-			if ($current_day!=$this_day) {
-				$day_starts[] = $row->id; //add this to the array
-				$current_day = $this_day;	
-			}
+function view_chart($stock_symbol) {
+	$stock_symbol = str_replace("NYSE:", "", $stock_symbol);
+	//echo $stock_symbol; die();
+	$nowtime = time();
+	$last_trade_time = $this->get_last_trade_time($stock_symbol, $nowtime);
+	$this->load->module('chart_analyser');
+	$keytimes = $this->chart_analyser->get_daily_key_times($last_trade_time);
+	$num_entries = count($keytimes);
+	$this->load->module('chart_analyser');
+
+	
+	//let's get a list of prices for the stock at this keytime
+	$data_string = ""; //let's start building a data string for candlestick chart
+	$count = 0;
+	foreach ($keytimes as $key => $value) {
+		$count++;
+
+		$prev_stock_price_id = $this->chart_analyser->get_prev_stock_price_id($count, $stock_symbol, 'daily', $last_trade_time); 
+
+
+
+		//get the closing price at this time
+		$closing_price = $this->get_price_at_time($stock_symbol, $value);
+
+				if ($count==1) {
+					$opening_price = $closing_price;
+					$highest_price = $closing_price;
+					$lowest_price = $closing_price;
+				} else {
+
+					$start_time = $this->get_date_added($prev_stock_price_id);
+					$end_time = $value;
+
+					$opening_price = $this->get_price_for_id($prev_stock_price_id);
+					$highest_price = $this->get_highest_price_between_two_times($stock_symbol, $start_time, $end_time);
+					$lowest_price = $this->get_lowest_price_between_two_times($stock_symbol, $start_time, $end_time);
+				}
+
+
+				if ($count==$num_entries) {
+					$additional_code = ""; //no comma on the last entry!
+				} else {
+					$additional_code = ",";
+				}
+		
+		
+		$data_string.= "['".$key."', $lowest_price, $opening_price, $closing_price, $highest_price]".$additional_code."
+		";
 	}
 
-	if (!isset($day_starts)) {
-		echo "There is not enough data to make this thing work.  D'oh!";
-		die();
+	$data['data_string'] = $data_string;
+	$data['stock_symbol'] = $stock_symbol;
+	$data['latest_price'] = $this->chart_analyser->get_price_now($stock_symbol);
+	$data['headline'] = "Daily Chart For $stock_symbol (latest price: $".$data['latest_price'].")";
+	$percent_move = $this->chart_analyser->get_percent_move_today($stock_symbol);
+
+	if ($percent_move>0) {
+		$color = "green";
+		$info = "higher";
 	}
 
-	return $day_starts;
+	if ($percent_move<1) {
+		$color = "red";
+		$info = "lower";
+	}
+
+	if (!isset($color)) {
+		$color = "black";
+		$info = " (unchanged)";
+	}
+
+	$percent_move = number_format($percent_move, 2);
+	$data['percent_change'] = "<h2 style='color: ".$color."'>".$percent_move."% ".$info."</h2>";
+	$this->load->view('stock_chart_daily', $data);
 }
 
-function test($stock_symbol) {
-	$day_starts = $this->get_start_of_day_prices($stock_symbol);
-	foreach ($day_starts as $key => $value) {
-		echo $value."<br>";
-	}
 
-	echo "<h1>Now let us get the end of day ID's</h1>";
-	$day_ends = $this->get_end_of_day_prices($stock_symbol);
-	foreach ($day_ends as $key => $value) {
-		echo $value."<br>";
-	}
-}
-
-function get_prev_price_id($id) {
-	//get the ID belonging to price just before a known price
+function get_price_for_id($id) {
 	$query = $this->get_where($id);
 	foreach($query->result() as $row) {
-		$stock_symbol = $row->stock_symbol;
-		$date_added = $row->date_added;
+		$price = $row->price;
 	}
-
-	$this->load->model('mdl_stocks_feed');
-	$prev_price_id = $this->mdl_stocks_feed->get_prev_price_id($stock_symbol, $date_added);
-	return $prev_price_id;
+	return $price;	
 }
 
-function get_end_of_day_prices($stock_symbol) {
-	//get the IDs records which represent the end of a new day
-	//start by getting all of the day starts
-	$day_starts = $this->get_start_of_day_prices($stock_symbol);
-	foreach ($day_starts as $key => $value) {
-		$end_of_day_prices[] = $this->get_prev_price_id($value); 
+function get_price_at_time($stock_symbol, $timestamp) {
+	$stock_symbol = str_replace(' ', '', $stock_symbol);
+	$id = $this->get_id_at_time($stock_symbol, $timestamp);
+	$query = $this->get_where($id);
+	foreach($query->result() as $row) {
+		$price = $row->price;
 	}
 
-	if (!isset($end_of_day_prices)) {
-		echo "There is not enough data to make this thing work.  D'oh!";
-		die();
+	if (!isset($price)) {
+		$price = "";
 	}
+	return $price;
+}
 
-	return $end_of_day_prices;
+function get_id_at_time($stock_symbol, $timestamp) {
+	//get the id of a record that should be used for a stock at a timestamp
+	$this->load->model('mdl_stocks_feed');
+	$id = $this->mdl_stocks_feed->get_id_at_time($stock_symbol, $timestamp);
+	return $id;
+}
+
+function get_date_added($id) {
+	$query = $this->get_where($id);
+	foreach($query->result() as $row) {
+		$date_added = $row->date_added;
+	}
+	return $date_added;	
+}
+
+function get_last_trade_time($stock_symbol, $timestamp) {
+	//get a timestamp for when the last trade happened
+	$id = $this->get_id_at_time($stock_symbol, $timestamp);
+	$query = $this->get_where($id);
+	foreach($query->result() as $row) {
+		$date_added = $row->date_added;
+	}
+	if (!isset($date_added)) {
+		$date_added = $timestamp;
+	}
+	return $date_added;
+}
+
+function get_highest_price_between_two_times($stock_symbol, $start_time, $end_time) {
+	//the highest price reached between two points
+	$this->load->model('mdl_stocks_feed');
+	$price = $this->mdl_stocks_feed->get_highest_price_between_two_times($stock_symbol, $start_time, $end_time);
+	return $price;
+}
+
+function get_lowest_price_between_two_times($stock_symbol, $start_time, $end_time) {
+	//the lowest price reached between two points
+	$this->load->model('mdl_stocks_feed');
+	$price = $this->mdl_stocks_feed->get_lowest_price_between_two_times($stock_symbol, $start_time, $end_time);
+	return $price;
 }
 
 function show_json($stock_symbol) {
@@ -86,94 +164,6 @@ function _has_new_trade_taken_place($data) {
 	} else {
 		return TRUE;
 	}
-}
-
-function get_prices_for_candle($id, $chart_type) {
-	//return low, open, close, high for candlestick chart
-	//chart type can be 'daily', 'monthly' or 'weekly'
-
-	$query = $this->get_where($id);
-	foreach($query->result() as $row) {
-		$stock_symbol = $row->stock_symbol;
-		$end_time = $row->date_added;
-		$price = $row->price;
-	}
-
-	if ($chart_type=="daily") {
-		//get the previous ID
-
-		//the previous ID happened around 20 minutes ago
-		$twenty_minutes = 60*20;
-		$nowtime = time();
-		$start_time = $nowtime-$twenty_minutes;
-	}
-
-	$data['opening_price'] = $price-1; //the price of the previous entry
-	$data['closing_price'] = $price;
-	$data['lowest_price'] = $this->get_lowest_price_between_two_times($stock_symbol, $start_time, $end_time);
-	$data['highest_price'] = $this->get_highest_price_between_two_times($stock_symbol, $start_time, $end_time);
-	return $data;
-}
-
-function get_lowest_price_between_two_times($stock_symbol, $start_time, $end_time) {
-	$this->load->model('mdl_stocks_feed');
-	$price = $this->mdl_stocks_feed->get_lowest_price_between_two_times($stock_symbol, $start_time, $end_time);
-	return $price;
-}
-
-function get_highest_price_between_two_times($stock_symbol, $start_time, $end_time) {
-	$this->load->model('mdl_stocks_feed');
-	$price = $this->mdl_stocks_feed->get_highest_price_between_two_times($stock_symbol, $start_time, $end_time);
-	return $price;
-}
-
-
-
-
-
-function view_chart($stock_symbol) {
-	//let's fetch the data for this stock
-	$data['stock_symbol'] = $stock_symbol;
-	$chart_type = $this->uri->segment(4);
-
-	if (($chart_type!="weekly") && ($chart_type!="monthly")) {
-		$chart_type = "daily"; //let's default to the daily chart type
-	}
-
-	if ($chart_type=="daily") {
-		//get the NEWEST day start
-		$start_of_day_prices = $this->get_start_of_day_prices($stock_symbol);
-		foreach ($start_of_day_prices as $key => $value) {
-			$day_start_id = $value;
-		}
-
-		//now figure out what the date_added value is for the newest day
-		$query = $this->get_where($day_start_id);
-		foreach($query->result() as $row) {
-			$date_added = $row->date_added;
-		}
-		$additional_sql = " and date_added>=$date_added ";
-		$headline = "Daily Chart for ".$stock_symbol;
-	}
-
-	if ($chart_type=="weekly") {
-		//get the last seven days
-		$seven_days = 86400*7;
-		$nowtime = time();
-		$seven_days_back = $nowtime-$seven_days;
-		$additional_sql = " and date_added>$seven_days_back ";
-		$headline = "Weekly Chart for ".$stock_symbol;
-	}
-
-	if ($chart_type=="monthly") {
-		$additional_sql = ""; //just deal with all numbers from the start
-		$headline = "Monthly Chart for ".$stock_symbol;
-	}
-
-	$data['headline'] = $headline;
-	$mysql_query = "select * from stocks_feed where stock_symbol='$stock_symbol' ".$additional_sql." order by date_added";
-	$data['query'] = $this->_custom_query($mysql_query);
-	$this->load->view('stock_chart_'.$chart_type, $data);
 }
 
 function get($order_by) {

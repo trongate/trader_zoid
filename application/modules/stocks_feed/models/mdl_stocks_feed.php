@@ -10,15 +10,15 @@ $table = "stocks_feed";
 return $table;
 }
 
-function get_prev_price_id($stock_symbol, $date_added) {
+function get_id_at_time($stock_symbol, $timestamp) {
 $table = $this->get_table();
 $this->db->select_max('id');
 $this->db->where('stock_symbol', $stock_symbol);
-$this->db->where('date_added <', $date_added);
+$this->db->where('date_added <=', $timestamp);
 $query=$this->db->get($table);
 $row=$query->row();
 $id=$row->id;
-return $id; 
+return $id;
 }
 
 function get_lowest_price_between_two_times($stock_symbol, $start_time, $end_time) {

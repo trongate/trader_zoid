@@ -55,7 +55,7 @@ foreach ($stock_data as $key => $value) {
 
 function get_stocks() {
 	//return an array of the stocks that we are watching
-	$stocks[] = "NYSE:AAPL";
+	$stocks[] = "AAPL";
 	$stocks[] = "ADBE";
 	$stocks[] = "AIG";
 	$stocks[] = "AMZN";
@@ -72,7 +72,7 @@ function get_stocks() {
 	$stocks[] = "IBM";
 	$stocks[] = "JPM";
 	$stocks[] = "KO";
-	$stocks[] = "LMT";
+	$stocks[] = "NYSE:LMT";
 	$stocks[] = "LNKD";
 	$stocks[] = "MRK";
 	$stocks[] = "MCD";
