@@ -8,15 +8,6 @@ function __construct() {
 parent::__construct();
 }
 
-function test() {
-	$stock_symbol = "GOOG";
-	$timestamp = 1429390400;
-	$keytimes = $this->get_daily_key_times($timestamp);
-	foreach ($keytimes as $key => $value) {
-		echo "key of $key has value of $value<br>";
-	}
-}
-
 function get_prev_stock_price_id($array_count, $stock_symbol, $chart_type, $timestamp) {
 	//get the ID of the previous price point, given number in data array
 	$target_count = $array_count-1;
@@ -198,7 +189,14 @@ function get_price_now($stock_symbol) {
 	return $price;
 }
 
+function test() {
+	$stock_symbol = "SBUX";
+	$percent_move = $this->get_percent_move_today($stock_symbol);
+	echo $stock_symbol." has a percent move of $percent_move";
+}
+
 function get_percent_move_today($stock_symbol) {
+	$stock_symbol = str_replace('NYSE:', '', $stock_symbol);
 	//how much has this stock moved by today?
 	$nowtime = time();
 	$this->load->module('stocks_feed');
@@ -214,15 +212,8 @@ function get_percent_move_today($stock_symbol) {
 		}
 
 		$closing_price = $this->get_price_now($stock_symbol);
-		$percent_change = $closing_price/$opening_price;
-
-		if ($percent_change<1) {
-			//price has moved DOWN
-			$percent_change = -(1-$percent_change)*100;
-		} else {
-			$percent_change = ($percent_change-1)*100;
-		}
-
+		$percent_change = (($closing_price/$opening_price)*100)-100;
+	
 	} else {
 		//it ain't happening
 		$percent_change = "";

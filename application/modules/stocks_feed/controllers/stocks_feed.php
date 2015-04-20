@@ -59,12 +59,15 @@ function view_chart($stock_symbol) {
 	$data['headline'] = "Daily Chart For $stock_symbol (latest price: $".$data['latest_price'].")";
 	$percent_move = $this->chart_analyser->get_percent_move_today($stock_symbol);
 
+
+
+
 	if ($percent_move>0) {
 		$color = "green";
 		$info = "higher";
 	}
 
-	if ($percent_move<1) {
+	if ($percent_move<0) {
 		$color = "red";
 		$info = "lower";
 	}

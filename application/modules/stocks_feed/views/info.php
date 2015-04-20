@@ -15,8 +15,27 @@ echo "<tr><td valign='top'>";
 
 foreach($stocks as $symbol) {
 	$count++;
+
+/*
+	//some code to make sure the symbols are being added to the database
+	$this->load->module('stocks_feed');
+	$this_symbol = str_replace('NYSE:', '', $symbol);
+	$mysql_query = "select * from stocks_feed where stock_symbol = '$this_symbol'";
+	$query = $this->stocks_feed->_custom_query($mysql_query);
+	$num_rows = $query->num_rows();
+
+	if ($num_rows<1) {
+		$the_colour = "red";
+	} else {
+		$the_colour = "black";
+	}
+
+	echo "<h2 style='color: ".$the_colour."'>$mysql_query returns $num_rows rows</h2>";
+*/
+
 	$url = base_url()."stocks_feed/view_chart/".$symbol;
 	$percent_move = $this->chart_analyser->get_percent_move_today($symbol);
+
 	if (($percent_move>90) || ($percent_move<-90)) {
 		$percent_move = 0;
 	}
@@ -26,7 +45,7 @@ foreach($stocks as $symbol) {
 		$bg_colour = "lime";
 	}
 
-	if ($percent_move<1) {
+	if ($percent_move<0) {
 		$info = "lower";
 		$bg_colour = "#FF3300";
 	}
