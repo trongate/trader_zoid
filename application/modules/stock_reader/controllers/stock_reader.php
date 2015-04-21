@@ -51,6 +51,11 @@ foreach ($stock_data as $key => $value) {
 	}
 }
 
+$this->load->module('price_movements_daily');
+$this->price_movements_daily->_record_price_movements();
+$this->load->module('stock_alerts');
+$this->stock_alerts->_attempt_alert();
+
 }
 
 function get_stocks() {
