@@ -8,7 +8,7 @@ parent::__construct();
 
 function get_target_percent_movement($day_type) {
 	if ($day_type=="up") {
-		$target_percent = -0.8; //on an up day stock must be less than this
+		$target_percent = -1.2; //on an up day stock must be less than this
 	} else {
 		$target_percent = 1.5; //on a down day stock must be greater than this
 	}
@@ -46,7 +46,7 @@ function _attempt_alert() {
     			$message = $stock_symbol.": ".$trade_advice;
     			$nowtime = time();
 				$date_created = date('l jS \of F Y', $nowtime);
-				$sent = 0;
+				$sent = 1;
     			$this->_create_alert($stock_symbol, $message, $date_created, $sent);
     		}
     	}
@@ -62,7 +62,14 @@ function _create_alert($stock_symbol, $message, $date_created, $sent) {
 	$data['sent'] = $sent;
 	$this->_insert($data);
 
+
 	//Now send an SMS (text) message, emails etc
+	$target_mobnum = "07956030868";
+	$this->load->module('sms');
+	$from_name = "Davcon";
+	$this->sms->fire_text($target_mobnum, $message, $from_name);
+
+
 }
 
 function _is_alert_due() {
