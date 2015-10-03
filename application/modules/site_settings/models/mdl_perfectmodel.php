@@ -1,52 +1,14 @@
 <?php if (!defined('BASEPATH')) exit('No direct script access allowed');
-class Mdl_stocks_feed extends CI_Model {
+class Mdl_perfectmodel extends CI_Model {
 
 function __construct() {
 parent::__construct();
 }
 
 function get_table() {
-$table = "stocks_feed";
+$table = "tablename";
 return $table;
 }
-
-function get_id_at_time($stock_symbol, $timestamp) {
-$table = $this->get_table();
-$this->db->select_max('id');
-$this->db->where('stock_symbol', $stock_symbol);
-$this->db->where('date_added <=', $timestamp);
-$query=$this->db->get($table);
-$row=$query->row();
-$id=$row->id;
-return $id;
-}
-
-function get_lowest_price_between_two_times($stock_symbol, $start_time, $end_time) {
-$table = $this->get_table();
-$this->db->select_min('price');
-$this->db->where('stock_symbol', $stock_symbol);
-$this->db->where('date_added >=', $start_time);
-$this->db->where('date_added <=', $end_time);
-$query=$this->db->get($table);
-$row=$query->row();
-$price=$row->price;
-return $price; 
-}
-
-function get_highest_price_between_two_times($stock_symbol, $start_time, $end_time) {
-$table = $this->get_table();
-$this->db->select_max('price');
-$this->db->where('stock_symbol', $stock_symbol);
-$this->db->where('date_added >=', $start_time);
-$this->db->where('date_added <=', $end_time);
-$query=$this->db->get($table);
-$row=$query->row();
-$price=$row->price;
-return $price; 
-}
-
-
-
 
 function get($order_by) {
 $table = $this->get_table();
@@ -107,28 +69,6 @@ $table = $this->get_table();
 $query=$this->db->get($table);
 $num_rows = $query->num_rows();
 return $num_rows;
-}
-
-function get_min_date() {
-$table = $this->get_table();
-$this->db->select_min('date_added');
-$query = $this->db->get($table);
-$row=$query->row();
-$value=$row->date_added;
-return $value;	
-}
-
-
-
-function get_max_alt($target_column, $where_column1, $where_value1, $where_column2, $where_value2) {
-$table = $this->get_table();
-$this->db->where($where_column1, $where_value1);
-$this->db->where($where_column2, $where_value2);
-$this->db->select_max($target_column);
-$query = $this->db->get($table);
-$row=$query->row();
-$value=$row->$target_column;
-return $value;
 }
 
 function get_max() {

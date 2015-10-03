@@ -170,16 +170,26 @@ function test_nice() {
 }
 
 
-function get_price($stock_symbol, $timestamp) {
+function get_price($stock_symbol, $unix_timestamp) {
+
 	$this->load->module('stocks_feed');
-	$target_column = "price";
-	$where_column1 = "stock_symbol";
-	$where_value1 = $stock_symbol;
 
-	$where_column2 = "date_added < ";
-	$where_value2 = $timestamp;
+	$mysql_query = "select max(id) as target_id from stocks_feed where stock_symbol='$stock_symbol' and date_added<$unix_timestamp";
+	$query = $this->stocks_feed->_custom_query($mysql_query);
+	foreach($query->result() as $row) {
+		$target_id = $row->target_id;
+	}
 
-	$price = $this->stocks_feed->get_max_alt($target_column, $where_column1, $where_value1, $where_column2, $where_value2);
+	if (!isset($target_id)) {
+		$price = 0;
+		return $price;
+	}
+
+	$query = $this->stocks_feed->get_where($target_id);
+	foreach($query->result() as $row) {
+		$price = $row->price;
+	}
+
 	return $price;
 }
 

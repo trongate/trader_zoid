@@ -214,6 +214,7 @@ $count = $this->mdl_stocks_feed->count_where($column, $value);
 return $count;
 }
 
+
 function get_max_alt($target_column, $where_column1, $where_value1, $where_column2, $where_value2) {
 $this->load->model('mdl_stocks_feed');
 $max_value = $this->mdl_stocks_feed->get_max_alt($target_column, $where_column1, $where_value1, $where_column2, $where_value2);
@@ -221,6 +222,8 @@ $max_value = $this->mdl_stocks_feed->get_max_alt($target_column, $where_column1,
 if (!is_numeric($max_value)) {
 	$max_value = 0;
 }
+
+echo "<br>".$this->db->last_query()."<br>";
 
 return $max_value;
 }
