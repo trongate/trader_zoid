@@ -214,6 +214,24 @@ $count = $this->mdl_stocks_feed->count_where($column, $value);
 return $count;
 }
 
+function get_max_alt($target_column, $where_column1, $where_value1, $where_column2, $where_value2) {
+$this->load->model('mdl_stocks_feed');
+$max_value = $this->mdl_stocks_feed->get_max_alt($target_column, $where_column1, $where_value1, $where_column2, $where_value2);
+
+if (!is_numeric($max_value)) {
+	$max_value = 0;
+}
+
+return $max_value;
+}
+
+function get_min_date() {
+	//return the earliest date from the table
+	$this->load->model('mdl_stocks_feed');
+	$min_date = $this->mdl_stocks_feed->get_min_date();
+	return $min_date;
+}
+
 function get_max() {
 $this->load->model('mdl_stocks_feed');
 $max_id = $this->mdl_stocks_feed->get_max();

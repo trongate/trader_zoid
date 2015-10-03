@@ -92,6 +92,48 @@ function get_nice_date($timestamp, $format) {
     return $the_date;
 }
 
+
+
+
+function get_start_of_day_as_timestamp($unix_timestamp) {
+    //get the start of the day as a unix_timestamp
+
+    $hour=8;
+    $minute=0;
+    $second=0;
+    
+    $day = $this->getday($unix_timestamp);
+    $month = $this->get_month_num($unix_timestamp);
+    $year = $this->getyear($unix_timestamp);
+    
+    $unix_timestamp = $this->maketime($hour, $minute, $second, $month, $day, $year);
+    return $unix_timestamp;
+
+}
+
+
+
+//establish what today is...
+function getday($unix_timestamp) {
+    $day=date("j", $unix_timestamp);
+    return $day;
+}
+
+
+function get_month_num($unix_timestamp) {
+    $monthnum=date("n", $unix_timestamp);
+    return $monthnum;
+}
+
+
+
+//establish year from timestamp...
+function getyear($timestamp) {
+    $year=date("Y", $timestamp);
+    return $year;
+}
+
+
 function make_timestamp_from_datepicker($datepicker) {
     $hour=7;
     $minute=0;
@@ -401,6 +443,26 @@ function convert_to_clock_time($hour, $minute) {
     
     $clock_time = $hour.":".$minute;
     return $clock_time;
+}
+
+function get_days_from_range($timestamp1, $timestamp2) {
+    $numDays = abs($timestamp1 - $timestamp2)/60/60/24;
+
+    for ($i = 1; $i < $numDays; $i++) {
+        //echo date('Y m d', strtotime("+{$i} day", $timestamp1)) . '<br />';
+        $unix_timestamp = date(strtotime("+{$i} day", $timestamp1));
+        $day_name = date('l', $unix_timestamp);
+
+        if (($day_name!="Saturday") && ($day_name!="Sunday")) {
+            $days[] = $unix_timestamp;
+        }
+    }
+
+    if (!isset($days)) {
+        $days = "";
+    }
+
+    return $days;
 }
     
 }
