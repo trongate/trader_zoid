@@ -6,6 +6,14 @@ function __construct() {
 parent::__construct();
 }
 
+function clear() {
+	$mysql_query = "delete from auto_comments";
+	$query = $this->_custom_query($mysql_query);
+
+	$refer_url = $_SERVER["HTTP_REFERER"];
+	redirect($refer_url);
+}
+
 function view() {
 	$this->load->module('timedate');
 	$query = $this->get('id desc');

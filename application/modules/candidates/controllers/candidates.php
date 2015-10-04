@@ -6,6 +6,24 @@ function __construct() {
 parent::__construct();
 }
 
+function activate_one() {
+	$stock_symbol = $this->uri->segment(3);
+
+	if ($stock_symbol=="") {
+		echo "Please enter the stock symbol on the 3rd segment of the URL";
+		die();
+	} else {
+		$mysql_query = "update candidates set active=1 where stock_symbol='$stock_symbol'";
+		$query = $this->_custom_query($mysql_query);
+
+		$mysql_query = "update candidates set active=0 where stock_symbol!='$stock_symbol'";
+		$query = $this->_custom_query($mysql_query);
+	}
+
+	echo "<br>";
+	echo anchor("dashboard", "Return To Dashboard");
+}
+
 function get_active_stocks() {
 	$query = $this->get_where_custom('active', 1);
 	return $query;
@@ -27,6 +45,9 @@ function restart() {
 		$data['active'] = 1;
 		$this->_insert($data);
 	}
+
+	$mysql_query = "delete from auto_comments";
+	$query = $this->_custom_query($mysql_query);
 
 	echo "Successfully repopulated.<br>";
 	echo anchor('dashboard', "Return To Dashboard");

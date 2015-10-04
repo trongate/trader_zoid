@@ -14,4 +14,6 @@ echo anchor('candidates/view_current_candidates', '<li>View Current Candidates</
 
 echo anchor('historical_dates_to_be_checked/populate_table', '<li>Populate Historical Dates To Be Checked Table</li>');
 
-echo anchor('analysis_phase_one/go', '<li>Start Phase One Analysis</li>');
+echo anchor('analysis_phase_one/go', '<li style=\'font-size: 3em;\'>Start Phase One Analysis</li>');
+echo "<br><br><br>";
+echo anchor('analysis_phase_two/go', '<li style=\'font-size: 3em;\'>Start Phase Two Analysis</li>');

@@ -6,6 +6,22 @@ function __construct() {
 parent::__construct();
 }
 
+function _delete_phase_one_fails() {
+	//delete stocks where are not on results table
+	$this->load->module('candidates');
+	$this->load->module('stock_reader');
+	$stocks_list = $this->stock_reader->get_stocks();
+	foreach($stocks_list as $stock_symbol) {
+		$count = $this->count_where('stock_symbol', $stock_symbol);
+
+		if ($count==0) {
+			//delete this from the candidates list
+			$mysql_query = "update candidates set active=0 where stock_symbol='$stock_symbol'";
+			$query = $this->_custom_query($mysql_query);
+		}
+	}
+}
+
 function get($order_by) {
 $this->load->model('mdl_phase_one_results');
 $query = $this->mdl_phase_one_results->get($order_by);

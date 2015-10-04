@@ -1,4 +1,7 @@
 <h1>Active Candidates</h1>
+
+<table border="1">
+	<tr><td valign="top">
 <?php
 echo anchor('dashboard', "Dashboard");
 ?>
@@ -19,4 +22,16 @@ foreach($query2->result() as $row) {
 	echo "<li>".$stock_symbol."</li>";
 }
 ?>
-</ul>
+</ul></td>
+
+<td valign="top"><?php
+echo Modules::run('auto_comments/view');
+?></td>
+
+
+</tr></table>
+
+<?php
+echo anchor('candidates/activate_one/', 'Activate Just One Stock Symbol (for testing)');
+echo "<br><br>";
+echo anchor('auto_comments/clear/', 'Clear Comments');

@@ -104,31 +104,9 @@ function get_day_depth() {
 	return $depth;
 }
 
-function get_checkpoints_interval() {
-	//the time gap between each price check
-	$interval = 300;
-	return $interval;
-}
 
-function get_checkpoints_for_day($unix_timestamp) {
-	
-	$this->load->module('timedate');
-	$start_of_day = $this->timedate->get_start_of_day_as_timestamp($unix_timestamp);
 
-	//get the date numer
-	$date_number = date('j', $start_of_day);
-	$interval = $this->get_checkpoints_interval();
 
-	$checkpoints[] = $start_of_day;
-
-	$end_of_day = $start_of_day+86400;
-	for ($i=$start_of_day; $i < $end_of_day; $i++) { 
-		$i = $i+$interval;
-		$checkpoints[] = $i;
-	}
-
-	return $checkpoints;
-}
 
 //THE FUNCITONS BELOW ARE SUPER COOL: USE THEM!
 function test_nice_too() {
@@ -143,6 +121,7 @@ function test_nice_too() {
 }
 
 function testYEAH() {
+	//return all of the checkpoints that need to be tested for a certain day
 	$unix_timestamp = time();
 	$checkpoints = $this->get_checkpoints_for_day($unix_timestamp);
 	echo $checkpoints;
