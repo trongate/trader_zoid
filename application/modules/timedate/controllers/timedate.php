@@ -8,14 +8,8 @@ function __construct() {
 
 function get_seconds_from_opening_bell($unix_timestamp) {
     //NYSE opens at 9:30am |  This totally works!!!
-
-    $in_daylight_savings_time = $this->in_daylight_savings_time($unix_timestamp);
-    if ($in_daylight_savings_time==1) {
-        $one_hour = 3600;
-        $unix_timestamp = $unix_timestamp-$one_hour;
-    }
-
     $opening_bell_time = $this->get_opening_bell_time_as_timestamp($unix_timestamp);
+    $nice_time = $this->get_nice_date($opening_bell_time, 'full');
     $time_gap = $unix_timestamp-$opening_bell_time;
 
     if ($time_gap<0) {
@@ -28,24 +22,32 @@ function get_seconds_from_opening_bell($unix_timestamp) {
 
 function get_opening_bell_time_as_timestamp($unix_timestamp) {
     //get the start of the day as a unix_timestamp
+    $in_daylight_savings_time = $this->in_daylight_savings_time($unix_timestamp);
 
-    $hour=15;
+    if ($in_daylight_savings_time==TRUE) {
+        $hour = 14;
+    } else {
+        $hour = 15;
+    }
+
     $minute=30;
     $second=0;
-    
     $day = $this->getday($unix_timestamp);
     $month = $this->get_month_num($unix_timestamp);
     $year = $this->getyear($unix_timestamp);
     
-    $unix_timestamp = $this->maketime($hour, $minute, $second, $month, $day, $year);
-    return $unix_timestamp;
+    $opening_bell_time = $this->maketime($hour, $minute, $second, $month, $day, $year);
+    $opening_bell_time = $opening_bell_time-3600; //this needs fixed!
+    return $opening_bell_time;
 }
 
 
 
 
 function in_daylight_savings_time($unix_timestamp) {
+
     $in_daylight_savings_time = date('I', $unix_timestamp);
+
     if ($in_daylight_savings_time==1) {
         return TRUE; //British summertime
     } else {

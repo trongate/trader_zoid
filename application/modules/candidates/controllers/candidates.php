@@ -11,6 +11,11 @@ function get_active_stocks() {
 	return $query;
 }
 
+function remove_stock($stock_symbol) {
+	$mysql_query = "update candidates set active=0 where stock_symbol='$stock_symbol'";
+	$query = $this->_custom_query($mysql_query);
+}
+
 function restart() {
 	$mysql_query = "delete from candidates";
 	$this->_custom_query($mysql_query);

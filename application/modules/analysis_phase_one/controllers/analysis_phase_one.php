@@ -22,7 +22,31 @@ function __construct() {
 parent::__construct();
 }
 
+function test2() {
+	//test opening bell timestamps
+}
+
+function test3() {
+	//are 4 prices within target range?
+
+	$current_opening_price = 100;
+	$current_stock_price = 200;
+
+	$historic_opening_price = 50;
+	$historic_stock_price = 40;
+
+	$tollerance_percent = $this->get_tollerance();
+
+	$are_prices_within_target_range = $this->are_prices_within_target_range($current_opening_price, $current_stock_price, $historic_opening_price, $historic_stock_price, $tollerance_percent);
+	if ($are_prices_within_target_range==TRUE) {
+		echo "TRUE";
+	} else {
+		echo "FALSE";
+	}
+}
+
 function test() {
+	//calculate the percent change between two prices
 	$price_one = 100;
 	$price_two = 150;
 	$percent_change = (($price_two/$price_one)-1)*100;
@@ -42,6 +66,11 @@ function get_tollerance() {
 
 
 function go() {
+
+	$comment = "Phase one analysis started.";
+	$this->load->module('auto_comments');
+	$this->auto_comments->_insert_comment($comment);
+
 	$tollerance_percent = $this->get_tollerance();
 
 	//get all of the stocks to be checked
@@ -56,7 +85,6 @@ function go() {
 	$nowtime = time();
 	$seconds_from_opening_bell = $this->timedate->get_seconds_from_opening_bell($nowtime);
 
-
 	//get all of the historical dates to be checked
 	$this->load->module('historical_dates_to_be_checked');
 	$query_dates = $this->historical_dates_to_be_checked->get('unix_timestamp');
@@ -68,14 +96,21 @@ function go() {
 
 function _check_date_for_stocks($unix_timestamp, $stocks_to_be_checked, $seconds_from_opening_bell, $tollerance_percent) {
 	//check this date for ALL of the stocks that need to be checked
+
 	echo "*** START OF CHECKING A DATE ***<br><br>";
+
+	$this->load->module('auto_comments');
 
 	$this->load->module('timedate');
 	$this->load->module('gimme_the_price');
 
 	$opening_bell_time = $this->timedate->get_opening_bell_time_as_timestamp($unix_timestamp);
 
+	$positive_results = 0;
 		foreach($stocks_to_be_checked as $stock_symbol) {
+
+			$comment = "Checking $stock_symbol.";	
+			$this->auto_comments->_insert_comment($comment);
 
 			if (!isset($current_stock_price)) {
 				//get the current stock price and the price at today's opening bell
@@ -106,50 +141,73 @@ function _check_date_for_stocks($unix_timestamp, $stocks_to_be_checked, $seconds
 
 				$are_prices_within_target_range = $this->are_prices_within_target_range($current_opening_price, $current_stock_price, $historic_opening_price, $historic_stock_price, $tollerance_percent);
 				if ($are_prices_within_target_range==TRUE) {
+					//add this to the database for deeper analysis
+					$positive_results++;
 					echo "<h1 style='color: green;'>THIS IS POTENTIALLY A MATCHING CHART</h1>";
 				} else {
 					echo "<h1 style='color: red;'>NO MATCHING CHART</h1>";
 				}
-die();
 			} else {
 				echo "No data for this date.";
 			}
 		}
 
+		if ($positive_results<1) {
+			//score this stock off of the candidates list
+			$this->load->module('candidates');
+		}
+
 	echo "<br>END OF CHECKING A DATE<br><hr>";
 }
+
+
+
 
 function are_prices_within_target_range($current_opening_price, $current_stock_price, $historic_opening_price, $historic_stock_price, $tollerance_percent) {
 	//return TRUE (if good) or FALSE to ignore
 
-	if ($current_opening_price==0) {
-		$percent_change1 = 0;
-	} else {
-		$percent_change1 = (($current_stock_price/$current_opening_price)-1)*100;
-		$percent_change1 = abs($percent_change1);
+	if (($current_opening_price==0) || ($current_stock_price==0) || ($historic_opening_price==0) || ($historic_stock_price==0)) {
+		return FALSE; //no point in wasting time if figures are duff
 	}
+
+	
+	$percent_change1 = (($current_stock_price/$current_opening_price)-1)*100;
+
+	echo "<hr>";
+
+	echo "current opening bell price is $current_opening_price<br>";
+	echo "current stock price is $current_stock_price<br>";
+	echo "percent change today is $percent_change1";
+
+	echo "<hr>";
 
 
 	if ($historic_opening_price==0) {
 		$percent_change2 = 0;
 	} else {
 		$percent_change2 = (($historic_stock_price/$historic_opening_price)-1)*100;
-		$percent_change2 = abs($percent_change2);
 	}
 
-	$percent_change1 = 0.02;
 
-	if ($percent_change1>0) {
-		$price_differece_percent = (($percent_change2/$percent_change1)-1)*100;
-		$price_differece_percent = abs($price_differece_percent);
-	} else {
-		$price_differece_percent = $percent_change2;
-	}
+	echo "<hr>";
 
-	$price_differece_percent = $price_differece_percent/100;
-	echo $price_differece_percent;
+	echo "historic opening bell price is $historic_opening_price<br>";
+	echo "historic stock price is $historic_stock_price<br>";
+	echo "percent change historic is $percent_change2";
 
-	if ($price_differece_percent<=$tollerance_percent) {
+	echo "<hr>";
+	
+
+	$price_percent_difference = $percent_change2-$percent_change1;
+	$price_percent_difference = abs($price_percent_difference);
+
+
+
+
+	echo "<br>The difference between $percent_change2 and $percent_change1 is $price_percent_difference<br>";
+	echo "We are aiming for difference to be within $tollerance_percent, so result is<br>";
+
+	if ($price_percent_difference<=$tollerance_percent) {
 		return TRUE;
 	} else {
 		return FALSE;
