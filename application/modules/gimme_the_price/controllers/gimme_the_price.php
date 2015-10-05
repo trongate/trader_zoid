@@ -136,7 +136,9 @@ function testYEAH() {
 }
 
 function test_nice() {
-	$nowtime = time();
+	$this->load->module('site_settings');
+	$nowtime = $this->site_settings->get_nowtime();
+	
 	$stock_symbol = "AIG";
 	$last_price = $this->get_price($stock_symbol, $nowtime);
 	echo "The last price for $stock_symbol was $last_price";
@@ -153,23 +155,13 @@ function get_price($stock_symbol, $unix_timestamp) {
 
 	$this->load->module('stocks_feed');
 
-	$mysql_query = "select max(id) as target_id from stocks_feed where stock_symbol='$stock_symbol' and date_added<$unix_timestamp";
+	$mysql_query = "select * from stocks_feed where stock_symbol='$stock_symbol' and date_added<=$unix_timestamp order by date_added desc";
 	$query = $this->stocks_feed->_custom_query($mysql_query);
 	foreach($query->result() as $row) {
-		$target_id = $row->target_id;
-	}
-
-	if (!isset($target_id)) {
-		$price = 0;
+		$price = $row->price;
 		return $price;
 	}
 
-	$query = $this->stocks_feed->get_where($target_id);
-	foreach($query->result() as $row) {
-		$price = $row->price;
-	}
-
-	return $price;
 }
 
 }

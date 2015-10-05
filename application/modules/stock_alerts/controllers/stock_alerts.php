@@ -44,7 +44,10 @@ function _attempt_alert() {
 
     		if ($sent_alert==FALSE) {
     			$message = $stock_symbol.": ".$trade_advice;
-    			$nowtime = time();
+    			
+                $this->load->module('site_settings');
+                $nowtime = $this->site_settings->get_nowtime();
+
 				$date_created = date('l jS \of F Y', $nowtime);
 				$sent = 1;
     			$this->_create_alert($stock_symbol, $message, $date_created, $sent);
@@ -74,7 +77,8 @@ function _create_alert($stock_symbol, $message, $date_created, $sent) {
 
 function _is_alert_due() {
 	//have all of the conditions been met for sending an alert?
-	$nowtime = time();
+	$this->load->module('site_settings');
+    $nowtime = $this->site_settings->get_nowtime();
 
 	//TEST 1: Is this a weekday?
 	$this_day = date('l', $nowtime);
@@ -151,7 +155,9 @@ function _is_alert_due() {
 
 function sent_alert_today($stock_symbol) {
 	//have we sent an alert today for this stock?
-	$nowtime = time();
+	$this->load->module('site_settings');
+    $nowtime = $this->site_settings->get_nowtime();
+    
 	$the_date = date('l jS \of F Y', $nowtime);
 	$mysql_query = "select * from Stock_alerts where stock_symbol='$stock_symbol' and date_created='$the_date'";
 	$query = $this->_custom_query($mysql_query);

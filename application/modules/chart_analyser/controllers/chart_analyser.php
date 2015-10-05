@@ -198,7 +198,10 @@ function test() {
 function get_percent_move_today($stock_symbol) {
 	$stock_symbol = str_replace('NYSE:', '', $stock_symbol);
 	//how much has this stock moved by today?
-	$nowtime = time();
+	
+	$this->load->module('site_settings');
+	$nowtime = $this->site_settings->get_nowtime();
+
 	$this->load->module('stocks_feed');
 	$last_trade_time = $this->stocks_feed->get_last_trade_time($stock_symbol, $nowtime);
 	$start_of_day = $this->get_start_of_day($last_trade_time);
@@ -326,7 +329,10 @@ function get_prices_for_candle($id, $chart_type) {
 
 		//the previous ID happened around 20 minutes ago
 		$twenty_minutes = 60*20;
-		$nowtime = time();
+		
+		$this->load->module('site_settings');
+		$nowtime = $this->site_settings->get_nowtime();
+
 		$start_time = $nowtime-$twenty_minutes;
 	}
 

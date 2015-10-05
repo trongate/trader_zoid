@@ -92,7 +92,10 @@ function go() {
 
 	//figure out how far we are past opening time
 	$this->load->module('timedate');
-	$nowtime = time();
+	
+	$this->load->module('site_settings');
+	$nowtime = $this->site_settings->get_nowtime();
+
 	$seconds_from_opening_bell = $this->timedate->get_seconds_from_opening_bell($nowtime);
 
 	//get all of the historical dates to be checked
@@ -126,7 +129,10 @@ function _check_date_for_stocks($unix_timestamp, $stocks_to_be_checked, $seconds
 
 			if (!isset($current_stock_price)) {
 				//get the current stock price and the price at today's opening bell
-				$nowtime = time();
+				
+				$this->load->module('site_settings');
+				$nowtime = $this->site_settings->get_nowtime();
+
 				$current_stock_price = $this->gimme_the_price->get_price($stock_symbol, $nowtime);
 				$opening_bell_today = $this->timedate->get_opening_bell_time_as_timestamp($nowtime);
 				$current_opening_price = $this->gimme_the_price->get_price($stock_symbol, $opening_bell_today);

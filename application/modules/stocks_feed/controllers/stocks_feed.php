@@ -6,7 +6,9 @@ class Stocks_feed extends MX_Controller {
 function view_chart($stock_symbol) {
 	$stock_symbol = str_replace("NYSE:", "", $stock_symbol);
 	//echo $stock_symbol; die();
-	$nowtime = time();
+	$this->load->module('site_settings');
+	$nowtime = $this->site_settings->get_nowtime();
+	
 	$last_trade_time = $this->get_last_trade_time($stock_symbol, $nowtime);
 	$this->load->module('chart_analyser');
 	$keytimes = $this->chart_analyser->get_daily_key_times($last_trade_time);

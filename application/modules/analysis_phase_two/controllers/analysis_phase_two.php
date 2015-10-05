@@ -6,29 +6,120 @@ function __construct() {
 parent::__construct();
 }
 
+function test2() {
+	$this->load->module('stocks_feed');
+	$mysql_query = "select * from stocks_feed where stock_symbol='MSFT' order by id";
+	$query = $this->stocks_feed->_custom_query($mysql_query);
+	foreach($query->result() as $row) {
+		
+		echo $row->date_added."<br>";
+		echo "DATE IS : ";
+		echo Modules::run('timedate/get_nice_date', $row->date_added, 'full')."<br>";
+		echo $row->price."<br>";
+		echo "<hr>";
+		
+	}
+	$stock_symbol = "MSFT";
+	$unix_timestamp = 1429644253;
+	$nice_date = Modules::run('timedate/get_nice_date', $unix_timestamp, 'cool')."<br>";
+	echo "<h1>Gimme The Price on $unix_timestamp | $nice_date </h1>";
+	$this->load->module('gimme_the_price');
+	$price = $this->gimme_the_price->get_price($stock_symbol, $unix_timestamp);
+	echo $price;	
+}
+
+function test() {
+	//works with dummy stocks feed table
+	$this->load->module('stocks_feed');
+	$query = $this->stocks_feed->get('id');
+	foreach($query->result() as $row) {
+		echo $row->date_added."<br>";
+		echo Modules::run('timedate/get_nice_date', $row->date_added, 'full')."<br>";
+		echo $row->price."<br>";
+		echo "<hr>";
+	}
+	$stock_symbol = "MSFT";
+	$unix_timestamp = 1441993497;
+	echo "<h1>Gimme The Price</h1>";
+	$this->load->module('gimme_the_price');
+	$price = $this->gimme_the_price->get_price($stock_symbol, $unix_timestamp);
+	echo $price;
+}
+
+function test3() {
+	$unix_timestamp = 1430388324;
+	$stock_symbol = 'MSFT';
+	$this->load->module('gimme_the_price');
+	$price = $this->gimme_the_price->get_price($stock_symbol, $unix_timestamp);
+	echo "for $unix_timestamp the price is $price";
+}
+
+function test4() {
+	$unix_timestamp = $this->uri->segment(3);
+	$stock_symbol = 'MSFT';
+	$this->load->module('gimme_the_price');
+	$price = $this->gimme_the_price->get_price($stock_symbol, $unix_timestamp);
+	echo "for $unix_timestamp the price is $price";
+}
+
 function go() {
 
-	$nowtime = time();
+	$this->load->module('site_settings');
+	$nowtime = $this->site_settings->get_nowtime();
+	$this->load->module('gimme_the_price');
+
+	//clear phase two results
+	$this->load->module('phase_two_results');
+	$this->phase_two_results->_clear_table();
+
+	//repopulate today's checkpoints for the target stock
+
+	//enter today's prices into chartcalc table
 
 	//get an array of all of the checkpoints
-	$checkpoints = $this->get_checkpoints_for_day($nowtime);
-
-	$this->load->module('timedate');
-
-	$nice_date = $this->timedate->get_nice_date($nowtime, 'full');
-	echo "<h2>Now is $nice_date</h2>";
+	$checkpoints_for_today = $this->get_checkpoints_for_day($nowtime);
 
 
-	$count = 0;
-	foreach ($checkpoints as $key => $value) {
-		$count++;
-		$nice_date = $this->timedate->get_nice_date($value, 'full');
-		echo $nice_date."<br>";
-		echo "key of $key has value of $value<br><hr>";
+
+	$stock_symbol = "MSFT";
+	foreach ($checkpoints_for_today as $key => $value) {
+
+		$unix_timestamp = $value;
+		$value = $this->timedate->get_nice_date($unix_timestamp, 'full');
+		echo $value." ( ".$unix_timestamp.")<br>";
+		$price = $this->gimme_the_price->get_price($stock_symbol, $unix_timestamp);
+		echo "<h3>$price</h3>";
 	}
+	die();
 
-	echo $count;
+	$stock_symbol = "MSFT";
+	$unix_timestamp = $nowtime;
+	$this->_analyse_stock($stock_symbol, $unix_timestamp, $checkpoints_for_today);
 
+
+	echo "finished";
+	//fetch result from phase_one_results table
+
+	//get checkpoints for that time
+
+	//get price for that time
+
+}
+
+function _analyse_stock($stock_symbol, $unix_timestamp, $checkpoints_for_today) {
+
+	//clear today's checkpoints
+	$this->load->module('chartcalc');
+	$this->chartcalc->_clear_table();
+
+	//populate table for today prices
+	$this->load->module('chart_today');
+	$this->load->module('gimme_the_price');
+	foreach ($checkpoints_for_today as $unix_timestamp) {
+		# code...
+		$data['chart_today'] = $this->gimme_the_price->get_price($stock_symbol, $unix_timestamp);
+		$this->chartcalc->_insert($data);
+	}
 }
 
 function get_checkpoints_interval() {
@@ -49,7 +140,10 @@ function get_checkpoints_for_day($unix_timestamp) {
 
 	$checkpoints[] = $start_of_day;
 
-	$end_of_day = $start_of_day+86400;
+	//how many seconds are we from the opening bell
+	$seconds_from_opening_bell = $this->timedate->get_seconds_from_opening_bell($unix_timestamp);
+
+	$end_of_day = $start_of_day+$seconds_from_opening_bell;
 	for ($i=$start_of_day; $i < $end_of_day; $i++) { 
 		$i = $i+$interval;
 		$checkpoints[] = $i;
