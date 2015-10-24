@@ -10,7 +10,7 @@ THEN LOOPS THROUGH ALL CANDIDATES AND...
 {
 		and finds the price of the same stock at different dates, at the same time.
 		
-		If date is within tollerance range then gets added to array
+		If date is within tolerance range then gets added to array
 		
 		finished array is then insert into phase_one_results
 		
@@ -35,9 +35,9 @@ function test3() {
 	$historic_opening_price = 50;
 	$historic_stock_price = 40;
 
-	$tollerance_percent = $this->get_tollerance();
+	$tolerance_percent = $this->get_tolerance();
 
-	$are_prices_within_target_range = $this->are_prices_within_target_range($current_opening_price, $current_stock_price, $historic_opening_price, $historic_stock_price, $tollerance_percent);
+	$are_prices_within_target_range = $this->are_prices_within_target_range($current_opening_price, $current_stock_price, $historic_opening_price, $historic_stock_price, $tolerance_percent);
 	if ($are_prices_within_target_range==TRUE) {
 		echo "TRUE";
 	} else {
@@ -54,10 +54,10 @@ function test() {
 	echo $percent_change;
 }
 
-function get_tollerance() {
+function get_tolerance() {
 	$this->load->module("site_settings");
-	$tollerance_percent = $this->site_settings->get_phase_one_tollerance_percent();
-	return $tollerance_percent;
+	$tolerance_percent = $this->site_settings->get_phase_one_tolerance_percent();
+	return $tolerance_percent;
 }
 
 
@@ -81,7 +81,7 @@ function go() {
 
 
 
-	$tollerance_percent = $this->get_tollerance();
+	$tolerance_percent = $this->get_tolerance();
 
 	//get all of the stocks to be checked
 	$this->load->module('candidates');
@@ -103,13 +103,13 @@ function go() {
 	$query_dates = $this->historical_dates_to_be_checked->get('unix_timestamp');
 	foreach($query_dates->result() as $row_dates) {
 		$unix_timestamp = $row_dates->unix_timestamp;
-		$this->_check_date_for_stocks($unix_timestamp, $stocks_to_be_checked, $seconds_from_opening_bell, $tollerance_percent);
+		$this->_check_date_for_stocks($unix_timestamp, $stocks_to_be_checked, $seconds_from_opening_bell, $tolerance_percent);
 	}
 
 	$this->phase_one_results->_delete_phase_one_fails();
 }
 
-function _check_date_for_stocks($unix_timestamp, $stocks_to_be_checked, $seconds_from_opening_bell, $tollerance_percent) {
+function _check_date_for_stocks($unix_timestamp, $stocks_to_be_checked, $seconds_from_opening_bell, $tolerance_percent) {
 	//check this date for ALL of the stocks that need to be checked to see if current prices match
 
 	//echo "*** START OF CHECKING A DATE ***<br><br>";
@@ -161,7 +161,7 @@ function _check_date_for_stocks($unix_timestamp, $stocks_to_be_checked, $seconds
 				//echo "<b>Historic Opening Bell Price: </b>".$historic_opening_price."<br>";
 				//echo "<b>Historic Stock Price At This Time: </b>".$historic_stock_price."<br>";
 
-				$are_prices_within_target_range = $this->are_prices_within_target_range($current_opening_price, $current_stock_price, $historic_opening_price, $historic_stock_price, $tollerance_percent);
+				$are_prices_within_target_range = $this->are_prices_within_target_range($current_opening_price, $current_stock_price, $historic_opening_price, $historic_stock_price, $tolerance_percent);
 				if ($are_prices_within_target_range==TRUE) {
 					//add this to the database for deeper analysis
 					$positive_results++;
@@ -195,7 +195,7 @@ function _check_date_for_stocks($unix_timestamp, $stocks_to_be_checked, $seconds
 
 
 
-function are_prices_within_target_range($current_opening_price, $current_stock_price, $historic_opening_price, $historic_stock_price, $tollerance_percent) {
+function are_prices_within_target_range($current_opening_price, $current_stock_price, $historic_opening_price, $historic_stock_price, $tolerance_percent) {
 	//return TRUE (if good) or FALSE to ignore
 
 	if (($current_opening_price==0) || ($current_stock_price==0) || ($historic_opening_price==0) || ($historic_stock_price==0)) {
@@ -238,9 +238,9 @@ function are_prices_within_target_range($current_opening_price, $current_stock_p
 
 /*
 	echo "<br>The difference between $percent_change2 and $percent_change1 is $price_percent_difference<br>";
-	echo "We are aiming for difference to be within $tollerance_percent, so result is<br>";
+	echo "We are aiming for difference to be within $tolerance_percent, so result is<br>";
 */
-	if ($price_percent_difference<=$tollerance_percent) {
+	if ($price_percent_difference<=$tolerance_percent) {
 		return TRUE;
 	} else {
 		return FALSE;
