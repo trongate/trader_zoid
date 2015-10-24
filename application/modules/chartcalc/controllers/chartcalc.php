@@ -7,6 +7,10 @@ parent::__construct();
 }
 
 function test() {
+	echo "Hello You It Works Fine";
+}
+
+function testX() {
 	$this->load->module('gimme_the_price');
 	$this->load->module('stocks_feed');
 	$root_date = $this->stocks_feed->get_min_date();
