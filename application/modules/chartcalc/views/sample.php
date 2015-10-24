@@ -22,8 +22,8 @@
 
       var options = {
         chart: {
-          title: 'Box Office Earnings in First Two Weeks of Opening',
-          subtitle: 'in millions of dollars (USD)'
+          title: 'Comparing today\'s chart with historical chart',
+          subtitle: 'Oooh yeah!'
         },
         width: 900,
         height: 500

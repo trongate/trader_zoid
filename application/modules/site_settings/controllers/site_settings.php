@@ -11,11 +11,11 @@ function get_nowtime() {
 	return $nowtime;
 }
 
-function get_phase_one_tollerance_percent() {
+function get_phase_one_tolerance_percent() {
 	//the range that a price needs to be within to be considered close enough to warrant phase two analysis
-	$tollerance = 0.5; // (note 100 = 100 percent, 50 = 50% etc)
-	$tollerance = $tollerance+0.00000001;
-	return $tollerance;
+	$tolerance = 0.5; // (note 100 = 100 percent, 50 = 50% etc)
+	$tolerance = $tolerance+0.00000001;
+	return $tolerance;
 }
 
 function get_checkpoints_interval() {

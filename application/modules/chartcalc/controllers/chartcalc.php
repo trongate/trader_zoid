@@ -122,9 +122,9 @@ function calc_start_time2($data) {
 	return $start_time2;
 }
 
-function get_current_price_range_tollerance() {
-	$tollerance = 2; //the current % of flexibility for deviation at current prices
-	return $tollerance;
+function get_current_price_range_tolerance() {
+	$tolerance = 2; //the current % of flexibility for deviation at current prices
+	return $tolerance;
 }
 
 function get_opening_price_old() {
@@ -140,7 +140,7 @@ function get_opening_price_new() {
 function _calc_chart_diff_score() {
 	$opening_price_old = $this->get_opening_price_old();
 	$opening_price_new = $this->get_opening_price_new();
-	$current_price_tollerance = $this->get_current_price_range_tollerance();
+	$current_price_tolerance = $this->get_current_price_range_tolerance();
 
 	//loops through the table and record the % diff for both entries
 	$query = $this->get('id');
